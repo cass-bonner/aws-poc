@@ -1,0 +1,148 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+
+  "Description": "python and pip on Aamazon Linux instance",
+
+  "Parameters": {
+    "InstanceType": {
+      "Description": "EC2 instance type",
+      "Type": "String",
+      "Default": "t2.micro",
+      "AllowedValues": ["t2.micro", "m1.small", "m1.medium", "m1.large", "m1.xlarge", "m2.xlarge", "m2.2xlarge", "m2.4xlarge", "c1.medium", "c1.xlarge"],
+      "ConstraintDescription": "must be a valid EC2 instance type."
+    },
+
+    "RootDevice": {
+      "Description": "EC2 root device type ('ebs' or 'instanceStore')",
+      "Type": "String",
+      "Default": "ebs",
+      "AllowedValues": ["ebs", "instanceStore"],
+      "ConstraintDescription": "must be 'ebs' or 'instanceStore."
+    },
+
+    "KeyName": {
+      "Description": "Name of an existing EC2 KeyPair to enable SSH access to the application server.",
+      "Type": "String"
+    }
+  },
+
+  "Mappings": {
+    "AWSInstanceType2Arch": {
+       "m1.small":    { "Arch": "64" },
+      "t2.micro":    { "Arch": "64" }
+    },
+    "AWSRegionArch2AMI": {
+       "us-east-1": {
+        "64": "ami-1ecae776"
+      },
+      "us-west-2": {
+        "64": "ami-e7527ed7"
+      },
+      "us-west-1": {
+        "64": "ami-d114f295"
+      },
+      "eu-west-1": {
+        "64": "ami-a10897d6"
+      },
+      "ap-southeast-1": {
+        "64": "ami-68d8e93a"
+      },
+      "ap-southeast-2": {
+        "64": "ami-fd9cecc7"
+      },
+      "ap-northeast-1": {
+        "64": "ami-cbf90ecb"
+      },
+      "sa-east-1": {
+        "64": "ami-b52890a8"
+      }
+    }
+  },
+
+  "Resources": {
+    "AppServer": {
+      "Type": "AWS::EC2::Instance",
+      "Metadata": {
+        "AWS::CloudFormation::Init": {
+          "config": {
+            "packages": {
+              "yum": {
+                "postgresql" : []
+              }
+            }
+          }
+        }
+      },
+
+      "Properties": {
+        "ImageId": {
+          "Fn::FindInMap": [ "AWSRegionArch2AMI", { "Ref": "AWS::Region" }, { "Fn::FindInMap": [ "AWSInstanceType2Arch", { "Ref": "InstanceType" }, "Arch" ] } ]
+        },
+        "InstanceType": { "Ref": "InstanceType" },
+        "SecurityGroups": [ { "Ref": "AppServerSecurityGroup" } ],
+        "KeyName": { "Ref": "KeyName" },
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": ["", [
+              "#!/bin/bash -v\n",
+              "yum update -y\n",
+              "yum install -y postgresql --enablerepo=epel\n",
+              "# All is well so signal success\n",
+              "/opt/aws/bin/cfn-signal -e 0 -r \"AppServer setup complete\" '", { "Ref": "WaitHandle" }, "'\n"
+            ]]
+          }
+        }
+      }
+    },
+
+    "WaitHandle": {
+      "Type": "AWS::CloudFormation::WaitConditionHandle"
+    },
+
+    "WaitCondition": {
+      "Type": "AWS::CloudFormation::WaitCondition",
+      "DependsOn": "AppServer",
+      "Properties": {
+        "Handle": { "Ref": "WaitHandle" },
+        "Timeout": "600"
+      }
+    },
+
+    "AppServerSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Enable HTTP access via port 3000",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 22,
+            "ToPort": 22,
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      }
+    }
+  },
+
+  "Outputs": {
+    "qwikLAB": {
+      "Description": "Outputs to be used by qwikLAB",
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "{",
+            "\"HostDNS\": \"",
+            
+              { "Fn::GetAtt": [ "AppServer", "PublicDnsName" ] }
+            ,
+            "\",",
+            "\"UserName\": \"ec2-user\",",
+            "\"Connection\": \"ec2-user@", { "Fn::GetAtt": [ "AppServer", "PublicDnsName" ] }, "\"",
+            "}"
+          ]
+        ]
+      }
+    }
+  }
+}

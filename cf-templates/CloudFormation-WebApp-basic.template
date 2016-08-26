@@ -1,0 +1,315 @@
+{
+   "AWSTemplateFormatVersion":"2010-09-09",
+   "Description":"AWS CloudFormation Sample Template UpdateTutorial Part 1: Sample template that can be used to test EC2 updates. **WARNING** This template creates an Amazon Ec2 Instance. You will be billed for the AWS resources used if you create a stack from this template.",
+   "Parameters":{
+       "WebServerInstanceType": {
+      "Description": "WebServer EC2 instance type",
+      "Type": "String",
+      "Default": "t2.micro",
+      "AllowedValues": [
+        "t2.micro",
+        "m4.large"
+      ],
+      "ConstraintDescription": "must be a valid EC2 instance type."
+    }
+  },
+  "Mappings": {
+    "AWSInstanceType2Arch": {
+      "t2.micro": {
+        "Arch": "64"
+      },
+      "m4.large": {
+        "Arch": "64"
+      }
+    },
+
+    "AWSRegionArch2AMI": {
+      "us-east-1": {
+        "64": "ami-a4827dc9"
+      },
+      "us-west-2": {
+        "64": "ami-f303fb93"
+      },
+      "us-west-1": {
+        "64": "ami-11790371"
+      },
+      "eu-west-1": {
+        "64": "ami-c39604b0"
+      },
+      "ap-southeast-1": {
+        "64": "ami-a2c111c1"
+      },
+      "ap-southeast-2": {
+        "64": "ami-d9d7f9ba"
+      },
+      "ap-northeast-1": {
+        "64": "ami-6154bb00"
+      },
+      "sa-east-1": {
+        "64": "ami-106ee57c"
+      },
+      "eu-central-1": {
+        "64": "ami-7df01e12"
+      },
+      "ap-northeast-2": {
+        "64": "ami-69e92207"
+      }
+    }
+  },
+  
+   "Resources":{
+      "WebServerRole":{
+         "Type":"AWS::IAM::Role",
+         "Properties":{
+            "AssumeRolePolicyDocument":{
+               "Version":"2012-10-17",
+               "Statement":[
+                  {
+                     "Effect":"Allow",
+                     "Principal":{
+                        "Service":[
+                           "ec2.amazonaws.com"
+                        ]
+                     },
+                     "Action":[
+                        "sts:AssumeRole"
+                     ]
+                  }
+               ]
+            },
+            "ManagedPolicyArns": [
+               "arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess"
+            ],
+            "Path":"/"
+         }
+      },
+
+      "WebServerInstanceProfile":{
+         "Type":"AWS::IAM::InstanceProfile",
+         "DependsOn":"WebServerRole",
+         "Properties":{
+            "Path":"/",
+            "Roles":[
+               {
+                  "Ref":"WebServerRole"
+               }
+            ]
+         }
+      },
+
+      "WebServerSecurityGroup":{
+         "Type":"AWS::EC2::SecurityGroup",
+         "Properties":{
+            "GroupDescription":"Enable HTTP",
+            "SecurityGroupIngress":[
+               {
+                  "IpProtocol":"tcp",
+                  "FromPort":"80",
+                  "ToPort":"80",
+                  "CidrIp":"0.0.0.0/0"
+               }
+            ]
+         }
+      },
+      "Endpoint":{
+         "Type":"AWS::EC2::EIP",
+         "Properties":{
+            "InstanceId":{
+               "Ref":"WebServerHost"
+            }
+         }
+      },
+      "WebServerHost":{
+         "Type":"AWS::EC2::Instance",
+         "Metadata":{
+            "Comment":"Install a simple PHP application",
+            "AWS::CloudFormation::Init":{
+               "config":{
+                  "packages":{
+                     "yum":{
+                        "httpd":[
+
+                        ],
+                        "php":[
+
+                        ]
+                     }
+                  },
+                  "files":{
+                     "/var/www/html/index.php":{
+                        "content":{
+                           "Fn::Join":[
+                              "",
+                              [
+                                 "<?php\n",
+                                 "echo '<h1>AWS CloudFormation sample PHP application</h1>';\n",
+                                 "?>\n"
+                              ]
+                           ]
+                        },
+                        "mode":"000644",
+                        "owner":"apache",
+                        "group":"apache"
+                     },
+                     "/etc/cfn/cfn-hup.conf":{
+                        "content":{
+                           "Fn::Join":[
+                              "",
+                              [
+                                 "[main]\n",
+                                 "stack=",
+                                 {
+                                    "Ref":"AWS::StackName"
+                                 },
+                                 "\n",
+                                 "region=",
+                                 {
+                                    "Ref":"AWS::Region"
+                                 },
+                                 "\n"
+                              ]
+                           ]
+                        },
+                        "mode":"000400",
+                        "owner":"root",
+                        "group":"root"
+                     },
+                     "/etc/cfn/hooks.d/cfn-auto-reloader.conf":{
+                        "content":{
+                           "Fn::Join":[
+                              "",
+                              [
+                                 "[cfn-auto-reloader-hook]\n",
+                                 "triggers=post.update\n",
+                                 "path=Resources.WebServerHost.Metadata.AWS::CloudFormation::Init\n",
+                                 "action=/opt/aws/bin/cfn-init -s ",
+                                 {
+                                    "Ref":"AWS::StackName"
+                                 },
+                                 " -r WebServerHost ",
+                                 " --region     ",
+                                 {
+                                    "Ref":"AWS::Region"
+                                 },
+                                 "\n",
+                                 "runas=root\n"
+                              ]
+                           ]
+                        }
+                     }
+                  },
+                  "services":{
+                     "sysvinit":{
+                        "httpd":{
+                           "enabled":"true",
+                           "ensureRunning":"true"
+                        },
+                        "sendmail":{
+                           "enabled":"false",
+                           "ensureRunning":"false"
+                        }
+                     }
+                  }
+               }
+            }
+         },
+         "Properties":{
+            "ImageId":{
+               "Fn::FindInMap":[
+                  "AWSRegionArch2AMI",
+                  {
+                     "Ref":"AWS::Region"
+                  },
+                  {
+                     "Fn::FindInMap":[
+                        "AWSInstanceType2Arch",
+                        {
+                           "Ref":"WebServerInstanceType"
+                        },
+                        "Arch"
+                     ]
+                  }
+               ]
+            },
+            "InstanceType":{
+               "Ref":"WebServerInstanceType"
+            },
+            "SecurityGroups":[
+               {
+                  "Ref":"WebServerSecurityGroup"
+               }
+            ],
+            "IamInstanceProfile": { "Ref" : "WebServerInstanceProfile" },
+            "UserData":{
+               "Fn::Base64":{
+                  "Fn::Join":[
+                     "",
+                     [
+                        "#!/bin/bash\n",
+                        "yum update -y aws-cfn-bootstrap\n",
+                        "# Helper function\n",
+                        "function error_exit\n",
+                        "{\n",
+                        "  /opt/aws/bin/cfn-signal -e 1 -r \"$1\" '",
+                        {
+                           "Ref":"WebServerWaitHandle"
+                        },
+                        "'\n",
+                        "  exit 1\n",
+                        "}\n",
+                        "# Install the simple web page\n",
+                        "/opt/aws/bin/cfn-init -s ",
+                        {
+                           "Ref":"AWS::StackName"
+                        },
+                        " -r WebServerHost ",
+                        "         --region ",
+                        {
+                           "Ref":"AWS::Region"
+                        },
+                        " || error_exit 'Failed to run cfn-init'\n",
+                        "# Start up the cfn-hup daemon to listen for changes to the Web Server metadata\n",
+                        "/opt/aws/bin/cfn-hup || error_exit 'Failed to start cfn-hup'\n",
+                        "# All done so signal success\n",
+                        "/opt/aws/bin/cfn-signal -e 0 -r \"WebServer setup complete\" '",
+                        {
+                           "Ref":"WebServerWaitHandle"
+                        },
+                        "'\n"
+                     ]
+                  ]
+               }
+            }
+         }
+      },
+      "WebServerWaitHandle":{
+         "Type":"AWS::CloudFormation::WaitConditionHandle"
+      },
+      "WebServerWaitCondition":{
+         "Type":"AWS::CloudFormation::WaitCondition",
+         "DependsOn":"WebServerHost",
+         "Properties":{
+            "Handle":{
+               "Ref":"WebServerWaitHandle"
+            },
+            "Timeout":"600"
+         }
+      }
+   },
+   "Outputs":{
+      "WebsiteURL":{
+         "Value":{
+            "Fn::Join":[
+               "",
+               [
+                  "http://",
+                  {
+                     "Ref":"Endpoint"
+                  }
+               ]
+            ]
+         },
+         "Description":"Application URL"
+      }
+   }
+}
