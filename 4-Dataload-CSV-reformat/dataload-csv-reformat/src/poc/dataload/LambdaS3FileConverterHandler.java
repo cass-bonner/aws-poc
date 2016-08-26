@@ -28,6 +28,12 @@ import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 
+/**
+ * Simple POC to give example of transforming CSV uploaded to s3, transform it, and then
+ * upload it to s3 again. poc does current dir but would likely want another path.
+ * @author bonnerca
+ *
+ */
 public class LambdaS3FileConverterHandler implements RequestHandler<S3Event, Object> {
 	
 	
@@ -55,22 +61,25 @@ public class LambdaS3FileConverterHandler implements RequestHandler<S3Event, Obj
                     context.getLogger().log("Unable to detect file type for key " + srcKey);
                     return "";
                 }
+                // skip it if it's not a csv file. could be much more specific.
                 String extension = matcher.group(1).toLowerCase();
                 if (!"csv".equals(extension)) {
                     System.out.println("Skipping non-csv file " + srcKey + " with extension " + extension);
                     return "";
                 }
-                
+                //remove the .csv as we're going to append _v2.csv in this simple example.
                 String fileName = srcKey.substring(0, srcKey.indexOf("."));
                 context.getLogger().log("Transforming csv file " + srcBucket + "/" + srcKey);
                 
-                // Download the zip from S3 into a stream
                 AmazonS3 s3Client = new AmazonS3Client();
                 S3Object s3Object = s3Client.getObject(new GetObjectRequest(srcBucket, srcKey));
                 
+                // use jackson to marshall the rows into one map, and the footer into another
+                // many ways to do this but this allows us to easily validate the footer
                 CsvMapper mapper = new CsvMapper();
                 CsvSchema schema = CsvSchema.emptySchema().withHeader(); // use first row as header
                
+                
                 MappingIterator<Map<String,String>> it = mapper.readerFor(Map.class)
                    .with(schema)
                    .readValues(s3Object.getObjectContent());
@@ -79,11 +88,17 @@ public class LambdaS3FileConverterHandler implements RequestHandler<S3Event, Obj
                 List<HashMap<String, String>> csvAsMap = new ArrayList<HashMap<String,String>>();
     
                 Map<String,String> footerValues = new HashMap<String,String>();
+                
+                // loop through the mapping iterator and put into a list of maps. In other words
+                // each item in the list is a record, and each column of a row is an entry
+                // in the map.
                 while (it.hasNext()) {
                   HashMap<String,String> rowAsMap = (HashMap<String, String>) it.next();
              
                   context.getLogger().log("rowAsMap.get(FIELD_NAME): " + rowAsMap.get(FIELD_NAME));
-                  // if this is the footer row, set the footer map.
+                  // if this is the footer row, set the footer map. Just an example of course,
+                  // you will need some way to uniquely identify/group the footer row(s) -
+                  // or anything to be manipulated depending on the scenario.
                   if (rowAsMap.get(FIELD_NAME).equals(FOOTER_INDICATOR)) {
                 	  footerValues = rowAsMap;
                   } else {
@@ -96,12 +111,13 @@ public class LambdaS3FileConverterHandler implements RequestHandler<S3Event, Obj
                 context.getLogger().log("footer values: " + footerValues);
                 context.getLogger().log("csvAsMap: " + csvAsMap);
                 
+                // Validate the footer and file. throw exception is issues detected. 
+                // Correct action should be modified based on actual BRs
                 validateFile(footerValues,csvAsMap);
 
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
-
                 OutputStreamWriter writer = new OutputStreamWriter(os);
-                
+
                 CsvSchema scheman = null;
                 CsvSchema.Builder schemaBuilder = CsvSchema.builder();
                 if (csvAsMap != null && !csvAsMap.isEmpty()) {
@@ -111,20 +127,19 @@ public class LambdaS3FileConverterHandler implements RequestHandler<S3Event, Obj
                     scheman = schemaBuilder.build().withLineSeparator("\r").withHeader();
                 }
                 CsvMapper mappern = new CsvMapper();
-//                JsonMapper mappj = new JsonMapper();
                 ObjectWriter objectWriter = mappern.writer(scheman);
-//                objectWriter.
                 
+                // Take the list of rows map only and write back to a csv - go jackson go!
                 SequenceWriter sequenceWriter = objectWriter.writeValues(writer);
                 
                 context.getLogger().log("csvAsMap.toArray(): " + csvAsMap.toArray());
-
                 sequenceWriter.writeAll(csvAsMap.toArray());
                 
                 byte[] t = os.toByteArray();
                 
                 context.getLogger().log("t: " + t);
                 ObjectMetadata meta = new ObjectMetadata();
+                // back into the bucket you go!
 				s3Client.putObject(srcBucket, fileName + "_v2.csv", new ByteArrayInputStream(t), meta);
 
 				writer.flush();
