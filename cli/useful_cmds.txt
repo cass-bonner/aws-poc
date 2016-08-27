@@ -1,0 +1,13 @@
+#EMR
+
+# Create emr cluster with hive only
+aws emr create-cluster --name=emr-hive-poc --instance-type=m3.xlarge --instance-count=3 --region=ap-southeast-2 --release-label=emr-5.0.0 --ec2-attributes KeyName=bonnerca-sandbox-onboarding-ec2-2.pem --no-auto-terminate --applications Name=Hive --use-default-roles
+
+# Create emr cluster with hive and spark 
+aws emr create-cluster --name=emr-hive-spark-poc --instance-type=m3.xlarge --instance-count=2 --region=ap-southeast-2 --release-label=emr-5.0.0 --ec2-attributes KeyName=bonnerca-sandbox-onboarding-ec2-2.pem --no-auto-terminate --applications Name=Hive Name=Spark --use-default-roles
+
+# Redshift
+
+aws redshift create-cluster --cluster-identifier emrpocorigin --db-name=originpoc --node-type dw2.large --cluster-type single-node --master-username admin --master-user-password Password123 --publicly-accessible --port 8192
+
+
