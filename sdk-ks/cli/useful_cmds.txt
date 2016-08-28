@@ -10,4 +10,6 @@ aws emr create-cluster --name=emr-hive-spark-poc --instance-type=m3.xlarge --ins
 
 aws redshift create-cluster --cluster-identifier emrpocorigin --db-name=originpoc --node-type dw2.large --cluster-type single-node --master-username admin --master-user-password Password123 --publicly-accessible --port 8192
 
+# cloudformation - create new dynamodb and pass in parameters
+aws --region us-west-2 --profile cass cloudformation create-stack --stack-name ddb --template-body file:///Users/bonnerca/workspaces/iotworkshop/lab6/dynamodb.cf --parameters ParameterKey=HashKeyElementName,ParameterValue=SeqNumber ParameterKey=HashKeyElementType,ParameterValue=S
 
