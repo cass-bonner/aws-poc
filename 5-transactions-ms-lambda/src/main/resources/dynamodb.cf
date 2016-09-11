@@ -1,0 +1,31 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Resources" : {
+    "Order" : {
+      "Type" : "AWS::DynamoDB::Table",
+      "Properties" : {
+        "AttributeDefinitions": [ 
+        {
+          "AttributeName" : "orderId",
+          "AttributeType" : "S"
+        } 
+         ],
+        "KeySchema": [
+          { "AttributeName": "orderId", "KeyType": "HASH" }
+        ] ,
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": "10",
+          "WriteCapacityUnits": "10"
+        }              
+      }
+    }
+  },
+ 
+  "Outputs" : {
+    "TableName" : {
+      "Value" : {"Ref" : "Order"}
+    }
+  }
+}
+
+

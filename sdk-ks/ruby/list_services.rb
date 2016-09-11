@@ -8,7 +8,7 @@ s3.buckets.limit(50).each do |b|
 end
 
 
-rds = Aws::RDS::Resource.new(region: 'us-west-2')
+rds = Aws::RDS::Resource.new(region: 'ap-southeast-2')
       
 rds.db_instances.each do |i|
   puts "Name (ID): #{i.id}"
