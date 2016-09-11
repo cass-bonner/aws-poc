@@ -1,7 +1,7 @@
 swagger: "2.0"
 info:
   version: "2016-09-10T07:28:50Z"
-  title: "OrderCaptureService"
+  title: "PaymentService"
 host: "qo0rkk2937.execute-api.ap-northeast-1.amazonaws.com"
 basePath: "/dev"
 schemes:
@@ -81,7 +81,7 @@ paths:
         - Supplies Store
       x-amazon-apigateway-integration:
         type: aws
-        uri: arn:aws:lambda:ap-northeast-1:970386504547:function:PaymentPreAuthorisationHandler/invocations
+        uri: arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:970386504547:function:PaymentPreAuthorisationHandler/invocations
         httpMethod: POST
         credentials: arn:aws:iam::*:user/*
         responses:
