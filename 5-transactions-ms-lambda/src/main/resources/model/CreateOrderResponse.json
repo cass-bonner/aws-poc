@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://jsonschema.net",
+  "type": "object",
+  "properties": {
+    "orderId": {
+      "id": "http://jsonschema.net/orderId",
+      "type": "string"
+    }
+  },
+  "required": [
+    "orderId"
+  ]
+}

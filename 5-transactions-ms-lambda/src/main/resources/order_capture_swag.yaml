@@ -1,0 +1,198 @@
+swagger: "2.0"
+info:
+  version: "2016-09-10T07:28:50Z"
+  title: "OrderCaptureService"
+host: "qo0rkk2937.execute-api.ap-northeast-1.amazonaws.com"
+basePath: "/dev"
+schemes:
+- "https"
+paths:
+  /orders:
+    post:
+      x-amazon-apigateway-auth:
+        type: aws_iam
+      produces:
+      - "application/json"
+      consumes:
+        - application/json
+      parameters:
+        - name: NewOrder
+          in: body
+          description: New Order details.
+          schema:
+            $ref: '#/definitions/NewOrder'
+      tags:
+        - Supplies Store
+      x-amazon-apigateway-integration:
+        type: aws
+        uri: arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:970386504547:function:OrderCaptureHandler/invocations
+        httpMethod: POST
+        credentials: arn:aws:iam::*:user/*
+        requestTemplates:
+          application/json: |
+            {
+              "action" : "poc.sa.ms.control.order.OrderCaptureHandler",
+              "body" : $input.json('$')
+            }
+        responses:
+          "default":
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+          "BAD.*":
+            statusCode: "400"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+          "INT.*":
+            statusCode: "500"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+      responses:
+        200:
+          description: The unique identifier of the new order
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/NewOrderResponse'
+        400:
+          description: Bad request
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: Internal error
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/Error'     
+definitions:
+  User:
+    properties:
+      username:
+        type: string
+        description: A unique username for the user
+      password:
+        type: string
+        description: A password for the new user
+  RegisterUserResponse:
+    properties:
+      username:
+        type: string
+        description: The username of the new user
+      identityId:
+        type: string
+        description: The unique identifier for the new user
+      token:
+        type: string
+        description: An OpenID token for the new user
+      credentials:
+        type: object
+        properties:
+          accessKey:
+            type: string
+            description: Temporary access key to sign requests
+          secretKey:
+            type: string
+            description: Temporary secret access key to sign requests
+          sessionToken:
+            type: string
+            description: Temporary session token
+          expiration:
+            type: integer
+            description: |
+              Expiration date of the temporary credentials in millis since 1/1/1970
+  LoginUserResponse:
+    properties:
+      identityId:
+        type: string
+        description: The unique identifier for the new user
+      token:
+        type: string
+        description: An OpenID token for the new user
+      credentials:
+        type: object
+        properties:
+          accessKey:
+            type: string
+            description: Temporary access key to sign requests
+          secretKey:
+            type: string
+            description: Temporary secret access key to sign requests
+          sessionToken:
+            type: string
+            description: Temporary session token
+          expiration:
+            type: integer
+            description: |
+              Expiration date of the temporary credentials in millis since 1/1/1970
+  NewOrder:
+    properties:
+      username:
+        type: string
+        description: unique identifier for the user
+      Items:
+        type: array
+        description: List of items in the order.
+        $ref: Items
+      CreditCardPaymentDetail:
+        type: object
+        description: payment details for the order
+        $ref: CreditCardPaymentDetail
+  NewOrderResponse:
+    properties:
+      orderId:
+        type: string
+        description: The generated unique identifier for the new order
+ 
+  Item:
+    properties:
+      lineItemId:
+        type: string
+        description: The unique identifier for the item
+      lineItemDescription:
+        type: string
+        description: the line item description
+      lineItemType:
+        type: string
+        description: the line item type
+      supplierName:
+        type: string
+        description: the supplier of the item 
+      quantity:
+        type: integer
+        description: the quantity of items purchased.
+  Items:
+    type: array
+    items:
+      $ref: Item
+      
+  CreditCardPaymentDetail:
+    properties:
+      netPaymentAmount:
+        type: number
+        description: the amount without shipping or tax
+      creditCardProvider:
+        type: string
+        description: the provider such as mastercard or vis
+      creditCardNumber:
+        type: string
+        description: the actual cc number
+      expiryDate:
+        type: string
+        description: cc expiry date 
+      verificationCode:
+        type: string
+        description: the cc verificatio code
+  Error:
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      fields:
+        type: string

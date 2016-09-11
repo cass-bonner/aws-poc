@@ -1,0 +1,72 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"id": "http://jsonschema.net",
+	"type": "object",
+	"properties": {
+		"username": {
+			"id": "http://jsonschema.net/username",
+			"type": "string"
+		},
+		"items": {
+			"id": "http://jsonschema.net/items",
+			"type": "array",
+			"item": {
+				"id": "http://jsonschema.net/0",
+				"type": "object",
+				"properties": {
+					"lineItemId": {
+						"id": "http://jsonschema.net/0/lineItemId",
+						"type": "string"
+					},
+					"lineItemDescription": {
+						"id": "http://jsonschema.net/0/lineItemDescription",
+						"type": "string"
+					},
+					"lineItemType": {
+						"id": "http://jsonschema.net/0/lineItemType",
+						"type": "string"
+					},
+					"lineItemName": {
+						"id": "http://jsonschema.net/0/lineItemName",
+						"type": "string"
+					},
+					"lineItemQuantity": {
+						"id": "http://jsonschema.net/0/lineItemQuantity",
+						"type": "integer"
+					}
+				}
+			}
+		},
+		"creditCardPaymentDetail": {
+			"id": "http://jsonschema.net/creditCardPaymentDetail",
+			"type": "object",
+			"properties": {
+				"netPaymentAmount": {
+					"id": "http://jsonschema.net/creditCardPaymentDetail/netPaymentAmount",
+					"type": "number"
+				},
+				"creditCardProvider": {
+					"id": "http://jsonschema.net/creditCardPaymentDetail/creditCardProvider",
+					"type": "string"
+				},
+				"creditCardNumber": {
+					"id": "http://jsonschema.net/creditCardPaymentDetail/creditCardNumber",
+					"type": "number"
+				},
+				"expiryDate": {
+					"id": "http://jsonschema.net/creditCardPaymentDetail/expiryDate",
+					"type": "string"
+				},
+				"verificationCode": {
+					"id": "http://jsonschema.net/creditCardPaymentDetail/verificationCode",
+					"type": "string"
+				}
+			}
+		}
+	},
+	"required": [
+		"username",
+		"items",
+		"creditCardPaymentDetail"
+	]
+}

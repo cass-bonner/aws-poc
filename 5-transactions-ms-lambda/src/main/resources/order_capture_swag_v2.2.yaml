@@ -1,0 +1,649 @@
+# this is an example of the Uber API
+# as a demonstration of an API spec in YAML
+swagger: '2.0'
+info:
+  title: API Gateway Transactions Demo
+  description: transactions sample that uses Cognito Developer Authenticated Identities to generate credentials through a Java Lambda Function
+  version: "1.0.0"
+# the domain of the service
+host: execute-api.ap-northeast-1.amazonaws.com
+# array of all schemes that your API supports
+schemes:
+  - https
+# will be prefixed to all paths
+basePath: /
+produces:
+  - application/json
+paths:
+  /users:
+    post:
+      summary: Registers a new user
+      description: |
+        Creates a new user in the DynamoDB backend database and returns a set
+        of temporary credentials to sign future requests.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: NewUser
+          in: body
+          description: New user details.
+          schema:
+            $ref: '#/definitions/User'
+      tags:
+        - Auth
+      x-amazon-apigateway-integration:
+        type: aws
+        uri: arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:970386504547:function:petstoreFunction/invocations
+        credentials: arn:aws:iam::970386504547:role/PetStoreLambdaExecutionPolicy
+        httpMethod: POST
+        requestTemplates:
+          application/json: |
+            {
+              "action" : "poc.sa.ms.control.user.RegisterUserAction",
+              "body" : $input.json('$')
+            }
+        responses:
+          "default":
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+          "BAD.*":
+            statusCode: "400"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+          "INT.*":
+            statusCode: "500"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+      responses:
+        200:
+          description: The username of the new user and set of temporary credentials
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/RegisterUserResponse'
+        400:
+          description: Bad request
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: Internal error
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/Error'
+    options:
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - CORS
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode" : 200
+            }
+        responses:
+          "default":
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods : "'*'"
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+            responseTemplates:
+              application/json: |
+                {}
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
+  /login:
+    post:
+      summary: Login user
+      description: |
+        Verifies the given credentials against the user database and returns a set
+        of new temporary credentials
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: LoginUser
+          in: body
+          description: New user details.
+          schema:
+            $ref: '#/definitions/User'
+      tags:
+        - Auth
+      x-amazon-apigateway-integration:
+        type: aws
+        uri: arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:970386504547:function:petstoreFunction/invocations
+        credentials: arn:aws:iam::970386504547:role/PetStoreLambdaExecutionPolicy
+        httpMethod: POST
+        requestTemplates:
+          application/json: |
+            {
+              "action" : "poc.sa.ms.control.user.LoginUserAction",
+              "body" : $input.json('$')
+            }
+        responses:
+          "default":
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+          "BAD.*":
+            statusCode: "400"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+          "INT.*":
+            statusCode: "500"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+      responses:
+        200:
+          description: A new set of temporary credentials
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/LoginUserResponse'
+        400:
+          description: Bad request
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: Internal error
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/Error'
+    options:
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - CORS
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode" : 200
+            }
+        responses:
+          "default":
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods : "'*'"
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+            responseTemplates:
+              application/json: |
+                {}
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
+  /orders:
+    post:
+      summary: Creates a new order
+      description: |
+        Creates a new Order object in the datastore
+      x-amazon-apigateway-auth:
+        type: aws_iam
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: NewOrder
+          in: body
+          description: New Order details.
+          schema:
+            $ref: '#/definitions/NewOrder'
+      tags:
+        - Supplies Store
+      x-amazon-apigateway-integration:
+        type: aws
+        uri: arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:970386504547:function:petstoreFunction/invocations
+        credentials: arn:aws:iam::*:user/*
+        httpMethod: POST
+        requestTemplates:
+          application/json: |
+            {
+              "action" : "poc.sa.ms.control.order.OrderCaptureHandler",
+              "body" : $input.json('$')
+            }
+        responses:
+          "default":
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+          "BAD.*":
+            statusCode: "400"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+          "INT.*":
+            statusCode: "500"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+      responses:
+        200:
+          description: The unique identifier of the new order
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/NewOrderResponse'
+        400:
+          description: Bad request
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: Internal error
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/Error'
+    get:
+      summary: List Orders for the user
+      description: Retrieve a list of orders for the user
+      x-amazon-apigateway-auth:
+        type: aws_iam
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - Supplies Store
+      x-amazon-apigateway-integration:
+        type: aws
+        uri: arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:970386504547:function:petstoreFunction/invocations
+        credentials: arn:aws:iam::*:user/*
+        httpMethod: POST
+        requestTemplates:
+          application/json: |
+            {
+              "action" : "com.amazonaws.apigatewaydemo.action.ListOrders",
+              "body" : $input.json('$')
+            }
+        responses:
+          "default":
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+          "BAD.*":
+            statusCode: "400"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+          "INT.*":
+            statusCode: "500"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+      responses:
+        200:
+          description: A list of orders
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/Orders'
+        400:
+          description: Bad request
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: Internal error
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/Error'
+    options:
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - CORS
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode" : 200
+            }
+        responses:
+          "default":
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods : "'*'"
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+            responseTemplates:
+              application/json: |
+                {}
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
+  /orders/{orderId}:
+    get:
+      summary: Get Order by id
+      description: Returns a Order definition based on the given id
+      x-amazon-apigateway-auth:
+        type: aws_iam
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - Supplies Store
+      parameters:
+        - name: orderId
+          in: path
+          description: The unique identifier for an order
+          type: string
+      x-amazon-apigateway-integration:
+        type: aws
+        uri: arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:970386504547:function:petstoreFunction/invocations
+        credentials: arn:aws:iam::*:user/*
+        httpMethod: POST
+        requestTemplates:
+          application/json: |
+            {
+              "action" : "poc.sa.ms.control.order.GetOrder",
+              "body" : {
+                "orderId" : "$input.params('orderId')"
+              }
+            }
+        responses:
+          "default":
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+          "BAD.*":
+            statusCode: "400"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+          "INT.*":
+            statusCode: "500"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+      responses:
+        200:
+          description: An order
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/Order'
+        400:
+          description: Bad request
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: Internal error
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/Error'
+    options:
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - CORS
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode" : 200
+            }
+        responses:
+          "default":
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods : "'*'"
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+            responseTemplates:
+              application/json: |
+                {}
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
+              
+  /products:
+    post:
+      summary: Posts new or updated product details (items) from a given supplier
+      description: |
+        Creates a new item or updates the items in the datastore
+      x-amazon-apigateway-auth:
+        type: aws_iam
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: ProductDetails
+          in: body
+          description: New or updated product details.
+          schema:
+            $ref: '#/definitions/Items'
+      tags:
+        - Supplies Store
+      x-amazon-apigateway-integration:
+        type: aws
+        uri: arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:970386504547:function:petstoreFunction/invocations
+        credentials: arn:aws:iam::*:user/*
+        httpMethod: POST
+        requestTemplates:
+          application/json: |
+            {
+              "action" : "poc.sa.ms.control.product.PublishItems",
+              "body" : $input.json('$')
+            }
+        responses:
+          "default":
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+          "BAD.*":
+            statusCode: "400"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+          "INT.*":
+            statusCode: "500"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+      responses:
+        200:
+          description: The status of the product details update. 
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/Items'
+        400:
+          description: Bad request
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: Internal error
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/Error'
+              
+definitions:
+  User:
+    properties:
+      username:
+        type: string
+        description: A unique username for the user
+      password:
+        type: string
+        description: A password for the new user
+  RegisterUserResponse:
+    properties:
+      username:
+        type: string
+        description: The username of the new user
+      identityId:
+        type: string
+        description: The unique identifier for the new user
+      token:
+        type: string
+        description: An OpenID token for the new user
+      credentials:
+        type: object
+        properties:
+          accessKey:
+            type: string
+            description: Temporary access key to sign requests
+          secretKey:
+            type: string
+            description: Temporary secret access key to sign requests
+          sessionToken:
+            type: string
+            description: Temporary session token
+          expiration:
+            type: integer
+            description: |
+              Expiration date of the temporary credentials in millis since 1/1/1970
+  LoginUserResponse:
+    properties:
+      identityId:
+        type: string
+        description: The unique identifier for the new user
+      token:
+        type: string
+        description: An OpenID token for the new user
+      credentials:
+        type: object
+        properties:
+          accessKey:
+            type: string
+            description: Temporary access key to sign requests
+          secretKey:
+            type: string
+            description: Temporary secret access key to sign requests
+          sessionToken:
+            type: string
+            description: Temporary session token
+          expiration:
+            type: integer
+            description: |
+              Expiration date of the temporary credentials in millis since 1/1/1970
+  NewOrder:
+    properties:
+      username:
+        type: string
+        description: unique identifier for the user
+      Items:
+        type: array
+        description: List of items in the order.
+        $ref: Items
+  NewOrderResponse:
+    properties:
+      orderId:
+        type: string
+        description: The generated unique identifier for the new order
+ 
+  Item:
+    properties:
+      lineItemId:
+        type: string
+        description: The unique identifier for the item
+      lineItemType:
+        type: string
+        description: the line item type
+      supplierName:
+        type: string
+        description: the supplier of the item 
+      quantity:
+        type: integer
+        description: the quantity of items purchased.
+  Items:
+    type: array
+    items:
+      $ref: Item
+  Error:
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      fields:
+        type: string

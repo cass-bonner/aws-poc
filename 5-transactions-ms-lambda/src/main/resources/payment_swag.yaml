@@ -1,0 +1,155 @@
+swagger: "2.0"
+info:
+  version: "2016-09-10T07:28:50Z"
+  title: "OrderCaptureService"
+host: "qo0rkk2937.execute-api.ap-northeast-1.amazonaws.com"
+basePath: "/dev"
+schemes:
+- "https"
+paths:
+  /verify:
+    post:
+      x-amazon-apigateway-auth:
+        type: aws_iam
+      produces:
+      - "application/json"
+      consumes:
+        - application/json
+      parameters:
+        - name: CreditCardPaymentDetail
+          in: body
+          description: CreditCardPaymentDetail to verify
+          schema:
+            $ref: '#/definitions/CreditCardPaymentDetail'
+      tags:
+        - Supplies Store
+      x-amazon-apigateway-integration:
+        type: aws
+        uri: arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:970386504547:function:PaymentDetailsVerificationHandler/invocations
+        httpMethod: POST
+        credentials: arn:aws:iam::*:user/*
+        responses:
+          "default":
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+          "BAD.*":
+            statusCode: "400"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+          "INT.*":
+            statusCode: "500"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+      responses:
+        200:
+          description: The unique identifier of the new order
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/PaymentVerificationResponse'
+        400:
+          description: Bad request
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: Internal error
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/Error'     
+  /preauthorise:
+    post:
+      x-amazon-apigateway-auth:
+        type: aws_iam
+      produces:
+      - "application/json"
+      consumes:
+        - application/json
+      parameters:
+        - name: CreditCardPaymentDetail
+          in: body
+          description: CreditCardPaymentDetail to verify
+          schema:
+            $ref: '#/definitions/CreditCardPaymentDetail'
+      tags:
+        - Supplies Store
+      x-amazon-apigateway-integration:
+        type: aws
+        uri: arn:aws:lambda:ap-northeast-1:970386504547:function:PaymentPreAuthorisationHandler/invocations
+        httpMethod: POST
+        credentials: arn:aws:iam::*:user/*
+        responses:
+          "default":
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+          "BAD.*":
+            statusCode: "400"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+          "INT.*":
+            statusCode: "500"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin : "'*'"
+      responses:
+        200:
+          description: The unique identifier of the new order
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/PaymentVerificationResponse'
+        400:
+          description: Bad request
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: Internal error
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+          schema:
+            $ref: '#/definitions/Error'     
+            
+definitions:
+      
+  CreditCardPaymentDetail:
+    properties:
+      netPaymentAmount:
+        type: number
+        description: the amount without shipping or tax
+      creditCardProvider:
+        type: string
+        description: the provider such as mastercard or vis
+      creditCardNumber:
+        type: string
+        description: the actual cc number
+      expiryDate:
+        type: string
+        description: cc expiry date 
+      verificationCode:
+        type: string
+        description: the cc verification code
+  PaymentVerificationResponse:
+    properties:
+      status:
+        type: string
+        description: The status of being verified - either VALID or INVALID
+  Error:
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      fields:
+        type: string

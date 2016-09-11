@@ -1,0 +1,27 @@
+{
+  "username": "user1",
+  "createDate": "Sep 11, 2016 8:17:44 AM",
+  "items": [
+    {
+      "lineItemId": "23455FB",
+      "lineItemDescription": "Blue Polo Shirt",
+      "lineItemType": "Clothing",
+      "supplierName": "Crew",
+      "quantity": 1
+    },
+    {
+      "lineItemId": "23455R",
+      "lineItemDescription": "Red Polo Shirt",
+      "lineItemType": "Clothing",
+      "supplierName": "Crew",
+      "quantity": 1
+    }
+  ],
+  "creditCardPaymentDetail": {
+    "netPaymentAmount": 47.22999999999999687361196265555918216705322265625,
+    "creditCardProvider": "VISA",
+    "creditCardNumber": 4.123456789101112E15,
+    "expiryDate": "Jul 11, 2019 12:00:00 AM",
+    "verificationCode": "397"
+  }
+}
