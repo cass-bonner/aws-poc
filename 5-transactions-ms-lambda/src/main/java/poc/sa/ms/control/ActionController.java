@@ -24,7 +24,7 @@ public class ActionController {
         try {
             inputObj = parser.parse(IOUtils.toString(request)).getAsJsonObject();
         } catch (IOException e) {
-            logger.log("Error while reading request\n" + e.getMessage());
+            logger.log("ErrorWrapper while reading request\n" + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
         
@@ -38,7 +38,7 @@ public class ActionController {
         try {
             action = Action.class.cast(Class.forName(actionClass).newInstance());
         } catch (final InstantiationException e) {
-            logger.log("Error while instantiating action class\n" + e.getMessage());
+            logger.log("ErrorWrapper while instantiating action class\n" + e.getMessage());
             throw new RuntimeException(e.getMessage());
         } catch (final IllegalAccessException e) {
             logger.log("Illegal access while instantiating action class\n" + e.getMessage());
@@ -63,7 +63,7 @@ public class ActionController {
         try {
             IOUtils.write(output, response);
         } catch (final IOException e) {
-            logger.log("Error while writing response\n" + e.getMessage());
+            logger.log("ErrorWrapper while writing response\n" + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
 	

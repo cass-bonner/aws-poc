@@ -12,7 +12,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import poc.sa.ms.model.order.payment.CreditCardPaymentDetail;
 
-public class PaymentServiceImpl implements PaymentService {
+public class PaymentClientServiceImpl implements PaymentClientService {
   
   public final static String PAYMENT_ENDPOINT="https://jcbxzdz84b.execute-api.ap-northeast-1.amazonaws.com/dev";
 

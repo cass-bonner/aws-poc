@@ -2,31 +2,34 @@ package poc.sa.ms.model.order;
 
 public class Item {
 	
-	private  String lineItemId; //sku
+	private  String sku;
 	private  String lineItemDescription;
 	private  String lineItemType;
 	private  String supplierName;
 	private  int quantity;
 	
 	public Item(){};
-	public Item(String lineItemId,
+	public Item(String sku,
 	    String lineItemDescription,
 	    String lineItemType,
 	    String supplierName,
 	    int quantity) {
-	  this.lineItemId = lineItemId;
 	  this.lineItemDescription = lineItemDescription;
 	  this.lineItemType = lineItemType;
 	  this.supplierName = supplierName;
 	  this.quantity = quantity;
 	}
-	public final String getLineItemId() {
-		return lineItemId;
-	}
-	public String getLineItemType() {
+	
+	public String getSku() {
+    return sku;
+  }
+  public void setSku(String sku) {
+    this.sku = sku;
+  }
+  public String getLineItemType() {
 		return lineItemType;
 	}
-	public Number getQuantity() {
+	public int getQuantity() {
 		return quantity;
 	}
   public String getSupplierName() {
@@ -40,9 +43,9 @@ public class Item {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((lineItemDescription == null) ? 0 : lineItemDescription.hashCode());
-    result = prime * result + ((lineItemId == null) ? 0 : lineItemId.hashCode());
     result = prime * result + ((lineItemType == null) ? 0 : lineItemType.hashCode());
     result = prime * result + quantity;
+    result = prime * result + ((sku == null) ? 0 : sku.hashCode());
     result = prime * result + ((supplierName == null) ? 0 : supplierName.hashCode());
     return result;
   }
@@ -60,17 +63,17 @@ public class Item {
         return false;
     } else if (!lineItemDescription.equals(other.lineItemDescription))
       return false;
-    if (lineItemId == null) {
-      if (other.lineItemId != null)
-        return false;
-    } else if (!lineItemId.equals(other.lineItemId))
-      return false;
     if (lineItemType == null) {
       if (other.lineItemType != null)
         return false;
     } else if (!lineItemType.equals(other.lineItemType))
       return false;
     if (quantity != other.quantity)
+      return false;
+    if (sku == null) {
+      if (other.sku != null)
+        return false;
+    } else if (!sku.equals(other.sku))
       return false;
     if (supplierName == null) {
       if (other.supplierName != null)
@@ -81,8 +84,10 @@ public class Item {
   }
   @Override
   public String toString() {
-    return "Item [lineItemId=" + lineItemId + ", lineItemDescription=" + lineItemDescription + ", lineItemType="
-        + lineItemType + ", supplierName=" + supplierName + ", quantity=" + quantity + "]";
+    return "Item [sku=" + sku + ", lineItemDescription=" + lineItemDescription + ", lineItemType=" + lineItemType
+        + ", supplierName=" + supplierName + ", quantity=" + quantity + "]";
   }
+  
+  
   
 }

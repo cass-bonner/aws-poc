@@ -3,14 +3,14 @@
   "createDate": "Sep 11, 2016 8:17:44 AM",
   "items": [
     {
-      "lineItemId": "23455FB",
+      "sku": "23455FB",
       "lineItemDescription": "Blue Polo Shirt",
       "lineItemType": "Clothing",
       "supplierName": "Crew",
       "quantity": 1
     },
     {
-      "lineItemId": "23455R",
+      "sku": "23455R",
       "lineItemDescription": "Red Polo Shirt",
       "lineItemType": "Clothing",
       "supplierName": "Crew",

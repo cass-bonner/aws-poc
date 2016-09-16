@@ -58,7 +58,24 @@ public final class Order {
   public CreditCardPaymentDetail getCreditCardPaymentDetail() {
     return creditCardPaymentDetail;
   }
+  
 
+
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
+  public void setCreateDate(Date createDate) {
+    this.createDate = createDate;
+  }
+
+  public void setItems(List<Item> items) {
+    this.items = items;
+  }
+
+  public void setCreditCardPaymentDetail(CreditCardPaymentDetail creditCardPaymentDetail) {
+    this.creditCardPaymentDetail = creditCardPaymentDetail;
+  }
 
   @Override
   public int hashCode() {

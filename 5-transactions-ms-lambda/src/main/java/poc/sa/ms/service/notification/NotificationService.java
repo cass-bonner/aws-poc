@@ -4,6 +4,6 @@ import poc.sa.ms.model.order.Order;
 import poc.sa.ms.model.order.OrderWorkflowState;
 
 public interface NotificationService {
-  public void notify(OrderWorkflowState orderWorkflowState, Order order);
+  public void notify(OrderWorkflowState orderWorkflowState, String order);
 
 }

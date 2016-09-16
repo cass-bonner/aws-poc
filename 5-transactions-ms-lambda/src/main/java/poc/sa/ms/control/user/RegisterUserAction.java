@@ -94,10 +94,10 @@
 //            newUser.setIdentity(identity);
 //            dao.createUser(newUser);
 //        } catch (final DaoException e) {
-//            logger.log("Error while saving new user\n" + e.getMessage());
+//            logger.log("ErrorWrapper while saving new user\n" + e.getMessage());
 //            throw new RuntimeException(ExceptionMessage.EX_DAO_ERROR);
 //        } catch (final RuntimeException e) {
-//            logger.log("Error while accessing Cognito\n" + e.getMessage());
+//            logger.log("ErrorWrapper while accessing Cognito\n" + e.getMessage());
 //            throw new RuntimeException(ExceptionMessage.EX_NO_COGNITO_IDENTITY);
 //        }
 //
@@ -111,7 +111,7 @@
 //        } catch (final RuntimeException e) {
 //            // Credentials are not mandatory as the user can attempt to login again if they are missing,
 //            // important that we tell them that the user is registered
-//            logger.log("Error while accessing Cognito\n" + e.getMessage());
+//            logger.log("ErrorWrapper while accessing Cognito\n" + e.getMessage());
 //        }
 //
 //        return getGson().toJson(output, RegisterUserResponse.class);

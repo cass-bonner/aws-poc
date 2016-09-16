@@ -1,18 +1,18 @@
 package poc.sa.ms.service.notification;
 
+
+import com.amazonaws.services.simpleemail.model.Destination;
+
 import poc.sa.ms.model.order.Order;
 import poc.sa.ms.model.order.OrderWorkflowState;
-import poc.sa.ms.service.user.UserService;
-import poc.sa.ms.service.user.UserServiceImpl;
+import poc.sa.ms.service.error.ErrorService;
 
 public class NotificationServiceImpl implements NotificationService {
 
   @Override
-  public void notify(OrderWorkflowState orderWorkflowState, Order order) {
-    UserService userService = new UserServiceImpl();
-    // Call SES Here.
-   String email = userService.getEmailAddress(order.getUsername());
-
+  public void notify(OrderWorkflowState orderWorkflowState, String order) {
+    Destination destination = new Destination().withToAddresses(new String[]{ErrorService.EMAIL_OVERRIDE});
+    // park for now. seems to want access keys.
   }
 
 }

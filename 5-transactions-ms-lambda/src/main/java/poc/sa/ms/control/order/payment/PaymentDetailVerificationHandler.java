@@ -18,7 +18,7 @@ import poc.sa.ms.model.order.payment.CreditCardPaymentDetail;
  * example it uses local logic but in practice it would call out to the payment provider.
  * It returns 
  * 
- * @see poc.sa.ms.service.payment.PaymentService
+ * @see poc.sa.ms.service.payment.PaymentClientService
  * @return Status of cc payment details- either INVALID or VALID
  *
  */

@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>poc.sa</groupId>
   <artifactId>ms-lambda</artifactId>
-  <version>0.0.7-SNAPSHOT</version>
+  <version>0.0.9-SNAPSHOT</version>
   <build>
     <resources>
       <resource>
@@ -82,6 +82,7 @@
       <artifactId>aws-java-sdk-lambda</artifactId>
       <version>1.11.32</version>
     </dependency>
+
     <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-api-gateway -->
     <dependency>
       <groupId>com.amazonaws</groupId>
@@ -115,6 +116,17 @@
       <artifactId>log4j</artifactId>
       <version>1.2.17</version>
     </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-ses</artifactId>
+      <version>1.11.34</version>
+    </dependency>
+    <dependency>
+    <groupId>com.amazonaws</groupId>
+    <artifactId>aws-lambda-java-events</artifactId>
+    <version>1.3.0</version>
+</dependency>
+
   </dependencies>
 
 

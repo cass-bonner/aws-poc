@@ -46,7 +46,7 @@
 //	        try {
 //	            loggedUser = dao.getUserByName(input.getUsername());
 //	        } catch (final DaoException e) {
-//	            logger.log("Error while loading user\n" + e.getMessage());
+//	            logger.log("ErrorWrapper while loading user\n" + e.getMessage());
 //	            throw new RuntimeException(ExceptionMessage.EX_DAO_ERROR);
 //	        }
 //
@@ -73,7 +73,7 @@
 //	            loggedUser.setIdentity(identity);
 //	            credentials = cognito.getUserCredentials(loggedUser);
 //	        } catch (final RuntimeException e) {
-//	            logger.log("Error while getting oidc token through Cognito\n" + e.getMessage());
+//	            logger.log("ErrorWrapper while getting oidc token through Cognito\n" + e.getMessage());
 //	            throw new RuntimeException(ExceptionMessage.EX_NO_COGNITO_IDENTITY);
 //	        }
 //

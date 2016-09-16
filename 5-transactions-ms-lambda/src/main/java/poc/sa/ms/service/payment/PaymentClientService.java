@@ -10,7 +10,7 @@ import poc.sa.ms.model.order.payment.CreditCardPaymentDetail;
  *
  */
 
-public interface PaymentService {
+public interface PaymentClientService {
   /**
    * Verify whether the PaymentDetails provided are valid. 
    * @param creditCardPaymentPaymentDetail

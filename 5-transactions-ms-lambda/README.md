@@ -5,16 +5,25 @@ The microservices lambda POC is an application built in Java for [AWS Lambda](ht
 
 At this pointn it is not using [Amazon Cognito](http://aws.amazon.com/cognito/), but that may be integrated if we build out a UI. For now it can be invoked via Postman with AWS credentials specified.
 
-The solution consists of 
+The solution consists of:
 
+* OrderService (API Gateway) which invokes Lambda Function OrderCaptureHandler for order creation /orders POST
+* Payment Service (API Gateway) - called by OrderService synchronously during order submission if the order is > 100. If <= 100 - then it is called by the event-driven  DynamoDbListener in an asynchronous manner
+DbListener w asynchronous
+* DynamoDbListener - Lambda function deployed to DynamoDb Order table that invokes
+* FullfillmentHandler - Lambda function that manages the stock inventory. It will report various errors to the ErrorHandler as they occur such as invalid SKUs, out of stock, etc. Items are removed from orders if they can not be fulfilled and the customer will be notified.
+* ErrorHandler - Logs the details of the error and the full order state to the Error Table.
 
-NB: At this point, only the OrderService and PaymentServices have been built out and tested.
 
 ## POC Setup
 ##DynamoDB
-* The current version of the solution requires one DynamoDB table be created. This is to store the The annotated objecs is on `poc.sa.ms.model.order.PersistedOrder` which stores a generated orderId as a key and an `poc.sa.ms.model.order.Order` as a json string.
- * The table should be called Order should have only a `Hash Key` of type `string` called **orderId**.
- * Alternatively you can use the dynamodb.cf file at src/main/resources but then you will need to update the code with the appropriate table name.
+* The current version of the solution requires three DynamoDB table be created as follows:
+
+** Order - should have only a `Hash Key` of type `string` called **orderId**.  This is to store the The annotated objects is on `poc.sa.ms.model.order.PersistedOrder` which stores a generated orderId as a key and an `poc.sa.ms.model.order.Order` as a json string.
+** ItemStock - **sku** for `Hash Key` (string), **quantity** as int, **reOrderd"" as boolean. This table contains the stock inventory for a given SKU and is deducted as orders are placed.
+ * Error - **errorId** for tracking errors. the remaining attributes will be built out by the service.
+ 
+you can use the dynamodb.cf file for Order at src/main/resources but then you will need to update the code with the appropriate table name.
  
 
 

@@ -3,9 +3,9 @@ package poc.sa.ms.control.order.payment;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Date;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
@@ -17,7 +17,7 @@ import poc.sa.ms.model.order.payment.CreditCardPaymentDetail;
 /**
  * Lamda function that pre authorises the payment if required.
  * 
- * @see poc.sa.ms.service.payment.PaymentService
+ * @see poc.sa.ms.service.payment.PaymentClientService
  * @return Result - PRE_AUTHORISED or UNABLE_TO_AUTHORISE
  *
  */
@@ -41,8 +41,11 @@ public class PaymentDetailPreAuthorisationHandler implements RequestStreamHandle
 
     context.getLogger().log("creditCardPaymentDetail: " + creditCardPaymentDetail);
 
-    preAuthorisePayment(creditCardPaymentDetail);
-    result = "PRE_AUTHORISED";
+    boolean valid = preAuthorisePayment(creditCardPaymentDetail);
+    if (valid) {
+      result = "PRE_AUTHORISED";
+    }
+    
     } catch (Exception e) {
       context.getLogger().log("Exception: " + e);
     }
@@ -51,9 +54,14 @@ public class PaymentDetailPreAuthorisationHandler implements RequestStreamHandle
 
   }
   
-  //do nothing for POC
-  private void preAuthorisePayment(CreditCardPaymentDetail creditCardPaymentDetail) {
-    
+  //for POC - if expiry date is in past it fails
+  private boolean preAuthorisePayment(CreditCardPaymentDetail creditCardPaymentDetail) {
+    boolean valid = true;
+    if (creditCardPaymentDetail.getExpiryDate().before(new Date())) {
+      System.out.println("Expiry Date is before current time it is invalid");
+      valid = false; 
+    }
+    return valid;
   }
 
 }

@@ -7,7 +7,7 @@
 //import com.amazonaws.services.cognitoidentity.model.GetOpenIdTokenForDeveloperIdentityRequest;
 //import com.amazonaws.services.cognitoidentity.model.GetOpenIdTokenForDeveloperIdentityResult;
 //
-//import poc.sa.ms.daoconfig.CognitoConfiguration;
+//import poc.sa.ms.daoconfig.SolutionConfiguration;
 //import poc.sa.ms.model.user.User;
 //import poc.sa.ms.model.user.UserCredentials;
 //import poc.sa.ms.model.user.UserIdentity;
@@ -50,7 +50,7 @@
 //        GetCredentialsForIdentityRequest credsRequest = new GetCredentialsForIdentityRequest();
 //        credsRequest.setIdentityId(user.getCognitoIdentityId());
 //        credsRequest.addLoginsEntry(
-//                CognitoConfiguration.COGNITO_PROVIDER_NAME,
+//                SolutionConfiguration.COGNITO_PROVIDER_NAME,
 //                user.getIdentity().getOpenIdToken()
 //        );
 //
@@ -70,7 +70,7 @@
 //
 //    /**
 //     * Returns a Cognito IdentityID for the end user and a OpenID Token based on the custom developer authenticated
-//     * identity provider configured in the CognitoConfiguration class. The OpenID token in the UserIdentity object is
+//     * identity provider configured in the SolutionConfiguration class. The OpenID token in the UserIdentity object is
 //     * only used to retrieve credentials for the user with the getUserCredentials method and is very short lived.
 //     *
 //     * @param user The user that is logging in or registering
@@ -83,13 +83,13 @@
 //        }
 //
 //        GetOpenIdTokenForDeveloperIdentityRequest oidcRequest = new GetOpenIdTokenForDeveloperIdentityRequest();
-//        oidcRequest.setIdentityPoolId(CognitoConfiguration.IDENTITY_POOL_ID);
+//        oidcRequest.setIdentityPoolId(SolutionConfiguration.IDENTITY_POOL_ID);
 //        if (user.getCognitoIdentityId() != null && !user.getCognitoIdentityId().trim().equals("")) {
 //            oidcRequest.setIdentityId(user.getCognitoIdentityId());
 //        }
 //
 //        oidcRequest.addLoginsEntry(
-//                CognitoConfiguration.CUSTOM_PROVIDER_NAME,
+//                SolutionConfiguration.CUSTOM_PROVIDER_NAME,
 //                user.getUsername()
 //        );
 //

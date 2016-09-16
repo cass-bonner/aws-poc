@@ -2,6 +2,8 @@ package poc.sa.ms.model.order;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
@@ -13,6 +15,7 @@ import poc.sa.ms.exception.DaoException;
 public class DdbOrderDao implements OrderDao {
 
   private static DdbOrderDao instance = null;
+  private static Logger logger = Logger.getLogger(DdbOrderDao.class);
 
   // credentials for the client come from the environment variables
   // pre-configured by Lambda. These are tied to the
@@ -41,9 +44,12 @@ public class DdbOrderDao implements OrderDao {
   public String createOrder(Order order) throws DaoException {
 
     validate(order);
-    
+
     PersistedOrder persistedOrder = new PersistedOrder(new Gson().toJson(order));
 
+    persistedOrder.setStatus(OrderWorkflowState.ORDER_CAPTURED.toString());
+    logger.debug("Persisted Order: " + persistedOrder);
+    
     getMapper().save(persistedOrder);
 
     return persistedOrder.getOrderId();
@@ -57,7 +63,8 @@ public class DdbOrderDao implements OrderDao {
   protected void validate(Order order) {
     if (order.getUsername() == null || order.getUsername().trim().equals("") || order.getItems() == null
         || order.getItems().size() <= 0 || order.getCreditCardPaymentDetail() == null
-        || order.getCreditCardPaymentDetail().getPaymentType() == null || order.getCreditCardPaymentDetail().getNetPaymentAmount() == null
+        || order.getCreditCardPaymentDetail().getPaymentType() == null
+        || order.getCreditCardPaymentDetail().getNetPaymentAmount() == null
 
     ) {
       throw new DaoException("Cannot persist order without username, items, and payment");

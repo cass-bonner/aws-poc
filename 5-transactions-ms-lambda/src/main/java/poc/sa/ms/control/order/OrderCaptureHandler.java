@@ -24,8 +24,8 @@ import poc.sa.ms.model.action.CreateOrderRequest;
 import poc.sa.ms.model.action.CreateOrderResponse;
 import poc.sa.ms.model.order.Order;
 import poc.sa.ms.model.order.OrderDao;
-import poc.sa.ms.service.payment.PaymentService;
-import poc.sa.ms.service.payment.PaymentServiceImpl;
+import poc.sa.ms.service.payment.PaymentClientService;
+import poc.sa.ms.service.payment.PaymentClientServiceImpl;
 
 
 public class OrderCaptureHandler implements RequestStreamHandler, RequestHandler<Object, Object> {
@@ -47,7 +47,7 @@ public class OrderCaptureHandler implements RequestStreamHandler, RequestHandler
     try {
         inputObj = parser.parse(IOUtils.toString(inputStream)).getAsJsonObject();
     } catch (IOException e) {
-        logger.log("Error while reading request\n" + e.getMessage());
+        logger.log("ErrorWrapper while reading request\n" + e.getMessage());
         throw new RuntimeException(e.getMessage());
     }
     // handy if want to utilize request dispatcher pattern. here we keep it simple
@@ -63,7 +63,7 @@ public class OrderCaptureHandler implements RequestStreamHandler, RequestHandler
     
     Order order = getGson().fromJson(body, Order.class);
 
-    logger.log("CreateOrderRequest:: " + order);
+    logger.log("order:: " + order);
     validateOrderRequest(order);
     
     System.out.println("order validated: " + order);
@@ -81,7 +81,7 @@ public class OrderCaptureHandler implements RequestStreamHandler, RequestHandler
     try {
       orderId = dao.createOrder(order);
     } catch (final DaoException e) {
-      logger.log("Error while creating new order\n" + e.getMessage());
+      logger.log("ErrorWrapper while creating new order\n" + e.getMessage());
       throw new RuntimeException(ExceptionMessage.EX_DAO_ERROR);
     }
 
@@ -89,6 +89,7 @@ public class OrderCaptureHandler implements RequestStreamHandler, RequestHandler
       logger.log("orderId is null or empty");
       throw new RuntimeException(ExceptionMessage.EX_DAO_ERROR);
     }
+    
 
     CreateOrderResponse output = new CreateOrderResponse();
     output.setOrderId(orderId);
@@ -103,12 +104,12 @@ public class OrderCaptureHandler implements RequestStreamHandler, RequestHandler
   }
 
   protected void authorize(Order createOrderRequest) {
-    PaymentService paymentService = new PaymentServiceImpl();
+    PaymentClientService paymentClientService = new PaymentClientServiceImpl();
     
     System.out.println("order: " + createOrderRequest);
-    paymentService.verify(createOrderRequest.getCreditCardPaymentDetail());
+    paymentClientService.verify(createOrderRequest.getCreditCardPaymentDetail());
     
-    paymentService.preAuth(createOrderRequest.getCreditCardPaymentDetail());    
+    paymentClientService.preAuth(createOrderRequest.getCreditCardPaymentDetail());    
   }
 
   protected void validateOrderRequest(Order order) {
