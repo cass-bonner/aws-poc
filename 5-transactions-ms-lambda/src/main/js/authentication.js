@@ -87,8 +87,6 @@ function getCognitoUser() {
          //var client = apigClientFactory.newClient(AWS.config.credentials);
          //var client = apigClientFactory.newClient({
           // region: 'ap-northeast-1',
-           //accessKey: 'AKIAIRP2XZ6OCVL5SRLQ',
-           //secretKey: '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',
          //});
          var client = apigClientFactory.newClient({region: 'ap-northeast-1'});
 
@@ -161,7 +159,7 @@ function postUnauthenticated(body) {
                   var orderId = result.data;
                   console.log('orderId...',orderId);
                   console.log(orderId);
-                  alert('<br>  Your order is being processed and we will notify  you as the order is processed. Please refer to your order Id: ' + orderId);
+                  alert('Your order is being processed and we will notify you as the order progresses through processing or if any issues arise. Please refer to your order Id:                                                                  ' + orderId);
                    
                 }).catch( function(result){
                   // Add error callback code here.
