@@ -10,7 +10,7 @@ paths:
   /verify:
     post:
       x-amazon-apigateway-auth:
-        type: aws_iam
+        type: none
       produces:
       - "application/json"
       consumes:
@@ -23,24 +23,6 @@ paths:
             $ref: '#/definitions/CreditCardPaymentDetail'
       tags:
         - Supplies Store
-      x-amazon-apigateway-integration:
-        type: aws
-        uri: arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:970386504547:function:PaymentDetailsVerificationHandler/invocations
-        httpMethod: POST
-        credentials: arn:aws:iam::*:user/*
-        responses:
-          "default":
-            statusCode: "200"
-            responseParameters:
-              method.response.header.Access-Control-Allow-Origin : "'*'"
-          "BAD.*":
-            statusCode: "400"
-            responseParameters:
-              method.response.header.Access-Control-Allow-Origin : "'*'"
-          "INT.*":
-            statusCode: "500"
-            responseParameters:
-              method.response.header.Access-Control-Allow-Origin : "'*'"
       responses:
         200:
           description: The unique identifier of the new order

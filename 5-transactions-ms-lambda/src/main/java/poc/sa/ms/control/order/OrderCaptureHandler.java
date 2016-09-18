@@ -44,22 +44,25 @@ public class OrderCaptureHandler implements RequestStreamHandler, RequestHandler
     logger = lambdaContext.getLogger();
     JsonParser parser = new JsonParser();
     JsonObject inputObj;
-    try {
-        inputObj = parser.parse(IOUtils.toString(inputStream)).getAsJsonObject();
-    } catch (IOException e) {
-        logger.log("ErrorWrapper while reading request\n" + e.getMessage());
-        throw new RuntimeException(e.getMessage());
-    }
-    // handy if want to utilize request dispatcher pattern. here we keep it simple
-    log.debug("inputObj: " + inputObj);
-    logger.log("Action: " + inputObj.get("action").getAsString());
-    
-    JsonObject body = null;
-    if (inputObj.get("body") != null) {
-        body = inputObj.get("body").getAsJsonObject();
-    }
-    logger.log("Stream body: " +body);
+//    try {
+//        inputObj = parser.parse(IOUtils.toString(inputStream)).getAsJsonObject();
+//    } catch (IOException e) {
+//        logger.log("ErrorWrapper while reading request\n" + e.getMessage());
+//        throw new RuntimeException(e.getMessage());
+//    }
+//    // handy if want to utilize request dispatcher pattern. here we keep it simple
+//    log.debug("inputObj: " + inputObj);
+//    logger.log("Action: " + inputObj.get("action").getAsString());
+//    
+//    JsonObject body = null;
+//    if (inputObj.get("body") != null) {
+//        body = inputObj.get("body").getAsJsonObject();
+//    }
+//    logger.log("Stream body: " +body);
 
+    String body = IOUtils.toString(inputStream);
+    
+    logger.log("Stream body: " +body);
     
     Order order = getGson().fromJson(body, Order.class);
 
@@ -106,9 +109,7 @@ public class OrderCaptureHandler implements RequestStreamHandler, RequestHandler
   protected void authorize(Order createOrderRequest) {
     PaymentClientService paymentClientService = new PaymentClientServiceImpl();
     
-    System.out.println("order: " + createOrderRequest);
-    paymentClientService.verify(createOrderRequest.getCreditCardPaymentDetail());
-    
+    System.out.println("order: " + createOrderRequest);    
     paymentClientService.preAuth(createOrderRequest.getCreditCardPaymentDetail());    
   }
 

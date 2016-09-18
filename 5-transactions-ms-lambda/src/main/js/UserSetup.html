@@ -1,0 +1,178 @@
+<html>
+  <head>
+
+    <script src="modules/jsbn.js"></script>
+    <script src="modules/jsbn2.js"></script>
+    <script src="modules/sjcl.js"></script>
+    <script src="modules/aws-cognito-sdk.min.js"></script>
+    <script src="modules/amazon-cognito-identity.min.js"></script>
+    <script src="modules/aws-sdk-2.6.3.min.js"></script>
+    <script src="authentication.js"></script>
+    <script src="apiGateway-js-sdk/apigClient.js"></script>
+    <script src="apiGateway-js-sdk-prodservice/apigClient.js"></script>
+    <script type="text/javascript" src="modules/axios.standalone.js"></script>
+    <script type="text/javascript" src="modules/hmac-sha256.js"></script>
+    <script type="text/javascript" src="modules/sha256.js"></script>
+    <script type="text/javascript" src="modules/hmac.js"></script>
+    <script type="text/javascript" src="modules/enc-base64.js"></script>
+    <script type="text/javascript" src="modules/url-template.js"></script>
+    <script type="text/javascript" src="modules/sigV4Client.js"></script>
+    <script type="text/javascript" src="modules/apiGatewayClient.js"></script>
+    <script type="text/javascript" src="modules/simpleHttpClient.js"></script>
+    <script type="text/javascript" src="modules/utils.js"></script>
+    <script src="modules/jquery-3.1.0.min.js"></script>
+    <script src="modules/jquery-ui-1.12.1.js"></script>
+  <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      
+    (function($){
+    $.fn.serializeObject = function(){
+
+        var self = this,
+            json = {},
+            push_counters = {},
+            patterns = {
+                "validate": /^[a-zA-Z][a-zA-Z0-9_]*(?:\[(?:\d*|[a-zA-Z0-9_]+)\])*$/,
+                "key":      /[a-zA-Z0-9_]+|(?=\[\])/g,
+                "push":     /^$/,
+                "fixed":    /^\d+$/,
+                "named":    /^[a-zA-Z0-9_]+$/
+            };
+
+
+        this.build = function(base, key, value){
+            base[key] = value;
+            return base;
+        };
+
+        this.push_counter = function(key){
+            if(push_counters[key] === undefined){
+                push_counters[key] = 0;
+            }
+            return push_counters[key]++;
+        };
+
+        $.each($(this).serializeArray(), function(){
+
+            // skip invalid keys
+            if(!patterns.validate.test(this.name)){
+                return;
+            }
+
+            var k,
+                keys = this.name.match(patterns.key),
+                merge = this.value,
+                reverse_key = this.name;
+
+            if (!(this.value == null || this.value == "")) { 
+            while((k = keys.pop()) !== undefined){
+
+                // adjust reverse_key
+                reverse_key = reverse_key.replace(new RegExp("\\[" + k + "\\]$"), '');
+
+                // push
+                if(k.match(patterns.push)){
+                    merge = self.build([], self.push_counter(reverse_key), merge);
+                }
+
+                // fixed
+                else if(k.match(patterns.fixed)){
+                    merge = self.build([], k, merge);
+                }
+
+                // named
+                else if(k.match(patterns.named)){
+                    merge = self.build({}, k, merge);
+                }
+            }
+            }
+
+            json = $.extend(true, json, merge);
+        });
+
+        return json;
+    };
+})(jQuery);  
+    
+    </script>
+ 
+    <script type="text/javascript">
+      var apigClient = apigClientFactory.newPsClient();
+
+       apigClient.skuslistGet({}, {})
+        .then(function(result) {
+         var items = result.data.Items;
+         var x = document.getElementById("items[0][sku]");
+         for (var i = 0; i < items.length; i++){
+          var option = document.createElement("option");
+          //option.text =items[i].sku.S + ' : ' + items[i].quantity.N;
+          option.text =items[i].sku.S + " : " + items[i].quantity.N;
+          x.add(option);
+         }
+        }).catch( function(result){
+        //This is where you would put an error callback
+     });
+    </script>
+
+    <script type="text/javascript">
+       function submit() {
+         var body = $('#order').serializeObject();
+         console.log(body);
+         postUnauthenticated(body);
+       }
+    </script>
+    
+<style>
+body { 
+  background: LightGrey   !important; 
+}
+th, td, p {
+    padding: 5px;
+    text-align: left;
+}
+</style>
+</head>
+
+<!-- <body onload="postUnauthenticated()" bgcolor="grey">  -->
+<body bgcolor="grey"> 
+   
+<h2>Submit Order</h2>
+<form id="order" name="order" action="javascript:submit()" method="post">
+ 
+<input name="username" value="cass" type="hidden"/>
+<font face="verdana" color="black">
+<table cellpadding="10">
+<tr>
+<td> <p><b>Item 1</b></p></td><td> <br/></td></tr>
+<tr><td> sku:</td><td>     <select id="items[0][sku]"> <option></option> </select> </td></tr>
+<tr><td> description: </td><td> <input type="text" name="items[0][description]" maxlength="100" size="12"/> <br/></td></tr>
+<tr><td> lineItemType: </td><td> <input type="text" name="items[0][lineItemType]" maxlength="12" size="12"/> <br/></td></tr>
+<tr><td> quantity: </td><td> <input type="number" required name="items[0][quantity]" maxlength="12" size="12"/> <br/></td></tr>
+<tr><td> <p><b>Item 2</b></p></td><td><br/></td></tr>
+<tr><td> sku:</td><td>       <input type="text"  name="items[1][sku]" maxlength="12" size="12"/> <br/></td></tr>
+<tr><td> description: </td><td> <input type="text" name="items[1][description]" maxlength="100" size="12"/> <br/></td></tr>
+<tr><td> lineItemType: </td><td> <input type="text" name="items[1][lineItemType]" maxlength="12" size="12"/> <br/></td></tr>
+<tr><td> quantity: </td><td> <input type="number"  name="items[1][quantity]" maxlength="12" size="12"/> <br/></td></tr>
+<tr><td> <p><b>Payment Details</b></p> </td><td> <br/></td></tr>
+<tr><td> netPaymentAmount: </td><td> <input type="text" required name="creditCardPaymentDetail[netPaymentAmount]" maxlength="12" size="12"/> <br/></td></tr>
+<tr><td> creditCardProvider: </td><td> <select name="creditCardPaymentDetail[creditCardProvider]">
+  <option value="mastervcard">MasterCard</option>
+  <option value="visa">Visa</option>
+</select> </td></tr>
+<tr><td> creditCardNumber: </td><td> <input type="number" required minlength="16" "maxlength="16" name="creditCardPaymentDetail[creditCardNumber]" size="12"/> <br/></td></tr>
+<tr><td> expiry date: </td><td> <input type="text" required minlength="24" "maxlength="24" name="creditCardPaymentDetail[expiryDate]" value="Jul 11, 2019 12:00:00 AM"  size="24"/> <br/></td></tr>
+<tr><td> verification code:  </td><td><input type="number" required minlength="3" "maxlength="3" name="creditCardPaymentDetail[verificationCode]" size="3"/> <br/></td></tr>
+</table>
+</font>
+</p>
+<p><input type="submit" /></p>
+</form>
+</body>
+</html>
