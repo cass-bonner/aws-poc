@@ -109,13 +109,15 @@
        apigClient.skuslistGet({}, {})
         .then(function(result) {
          var items = result.data.Items;
-         var x = document.getElementById("items[0][sku]");
+         var x = document.getElementById("items[0][skulist]");
          for (var i = 0; i < items.length; i++){
           var option = document.createElement("option");
           //option.text =items[i].sku.S + ' : ' + items[i].quantity.N;
           option.text =items[i].sku.S + " : " + items[i].quantity.N;
+          option.value =items[i].sku.S;
           x.add(option);
          }
+         console.log("x: " + x);
         }).catch( function(result){
         //This is where you would put an error callback
      });
@@ -150,8 +152,10 @@ th, td, p {
 <font face="verdana" color="black">
 <table cellpadding="10">
 <tr>
+<tr><td> Sku : Quanity :</td><td>  <select id="items[0][skulist]"> <option></option> </select> </td></tr>
+<tr><td> </td><td></td></tr>
 <td> <p><b>Item 1</b></p></td><td> <br/></td></tr>
-<tr><td> sku:</td><td>     <select id="items[0][sku]"> <option></option> </select> </td></tr>
+<tr><td> sku:</td><td>       <input type="text"  name="items[0][sku]" maxlength="12" size="12"/> <br/></td></tr>
 <tr><td> description: </td><td> <input type="text" name="items[0][description]" maxlength="100" size="12"/> <br/></td></tr>
 <tr><td> lineItemType: </td><td> <input type="text" name="items[0][lineItemType]" maxlength="12" size="12"/> <br/></td></tr>
 <tr><td> quantity: </td><td> <input type="number" required name="items[0][quantity]" maxlength="12" size="12"/> <br/></td></tr>
