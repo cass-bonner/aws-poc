@@ -1,0 +1,100 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+
+  "Description": "AWS CloudFormation Template for SuperMission: Builds DynamoDB tables, an S3 bucket, and Lambda functions for use in a real-time voting application. ** This template creates multiple AWS resources. You will be billed for the AWS resources used if you create a stack from this template.",
+
+
+
+  "Resources": {
+
+    "DynamoDBItemStockTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "AttributeDefinitions": [{
+          "AttributeName": "sku",
+          "AttributeType": "S"
+        }, {
+          "AttributeName": "quantity",
+          "AttributeType": "N"
+        }, {
+          "AttributeName": "reOrdered",
+          "AttributeType": "B"
+        }, {
+          "AttributeName": "updateDate",
+          "AttributeType": "S"
+        }],
+        "KeySchema": [{
+          "AttributeName": "sku",
+          "KeyType": "HASH"
+        }],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": "10",
+          "WriteCapacityUnits": "10"
+        },
+        "StreamSpecification": {
+          "StreamViewType": "NEW_AND_OLD_IMAGES"
+        },
+        "TableName": "ItemStock"
+      }
+    },
+    "FulfillmentHandler": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Handler": "poc.sa.ms.handler.order.fulfillment.FulfillmentHandler::handleRequest",
+        "Role": {
+          "Fn::GetAtt": ["DynamoDBItemStockCrudRole", "Arn"]
+        },
+        "Code": {
+          "S3Bucket": "TODO",
+          "S3Key": "TODO"
+        },
+        "Runtime": "Java 8"
+      }
+    },
+    "DynamoDBItemStockCrudRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [{
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "lambda.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+          }]
+        }
+      }
+    },
+    "DynamoDBItemStockRolePolicy": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "DynamoDBPolicy",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [{
+            "Effect": "Allow",
+            "Action": [
+              "dynamodb:Query",
+              "dynamodb:Scan",
+              "dynamodb:BatchWriteItem",
+              "dynamodb:*"
+            ],
+            "Resource": {"Fn::GetAtt": ["ItemStockTableName", "Arn"]} 
+          }]
+        },
+        "Roles": [{
+          "Ref": "DynamoDBItemStockCrudRole"
+        }]
+      }
+    },
+  }
+  "Outputs": {
+    "ItemStockTableName": {
+      "Value": {
+        "Ref": "DynamoDBItemStockTable"
+      },
+      "Description": "Table name of the newly created DynamoDB table"
+    }
+  }
+}

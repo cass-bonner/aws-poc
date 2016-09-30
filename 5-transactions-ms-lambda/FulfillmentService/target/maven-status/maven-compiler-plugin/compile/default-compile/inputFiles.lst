@@ -1,0 +1,7 @@
+/Users/bonnerca/git/aws-poc/5-transactions-ms-lambda/FulfillmentService/src/main/java/poc/sa/ms/dao/fulfillment/ItemStock.java
+/Users/bonnerca/git/aws-poc/5-transactions-ms-lambda/FulfillmentService/src/main/java/poc/sa/ms/dao/fulfillment/DdbInventoryDao.java
+/Users/bonnerca/git/aws-poc/5-transactions-ms-lambda/FulfillmentService/src/main/java/poc/sa/ms/handler/fulfillment/FulfillmentHandler.java
+/Users/bonnerca/git/aws-poc/5-transactions-ms-lambda/FulfillmentService/src/main/java/poc/sa/ms/handler/fulfillment/FulfillmentService.java
+/Users/bonnerca/git/aws-poc/5-transactions-ms-lambda/FulfillmentService/src/main/java/poc/sa/ms/handler/fulfillment/FulfillmentServiceImpl.java
+/Users/bonnerca/git/aws-poc/5-transactions-ms-lambda/FulfillmentService/src/main/java/poc/sa/ms/dao/fulfillment/InventoryDao.java
+/Users/bonnerca/git/aws-poc/5-transactions-ms-lambda/FulfillmentService/src/main/java/poc/sa/ms/dao/fulfillment/StockStatus.java

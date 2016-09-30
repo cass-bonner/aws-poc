@@ -19,7 +19,7 @@ DbListener w asynchronous
 ##DynamoDB
 * The current version of the solution requires three DynamoDB table be created as follows:
 
-** Order - should have only a `Hash Key` of type `string` called **orderId**.  This is to store the The annotated objects is on `poc.sa.ms.model.order.PersistedOrder` which stores a generated orderId as a key and an `poc.sa.ms.model.order.Order` as a json string.
+** Order - should have only a `Hash Key` of type `string` called **orderId**.  This is to store the The annotated objects is on `poc.sa.ms.dao.order.PersistedOrder` which stores a generated orderId as a key and an `poc.sa.ms.dao.order.Order` as a json string.
 ** ItemStock - **sku** for `Hash Key` (string), **quantity** as int, **reOrderd"" as boolean. This table contains the stock inventory for a given SKU and is deducted as orders are placed.
  * Error - **errorId** for tracking errors. the remaining attributes will be built out by the service.
  
@@ -80,17 +80,17 @@ Create the following functions - all with java 8 and your jar file uploaded to s
 
 ###OrderCaptureHandler
 
-* As a Handler for your function enter `poc.sa.ms.control.order.OrderCaptureHandler::handleRequest`.
+* As a Handler for your function enter `poc.sa.ms.handler.order.fulfillment.OrderCaptureHandler::handleRequest`.
 * Use the order execution role created in the previous step.
 
 ###PaymentDetailsVerificationHandler
 
-* As a Handler for your function enter `poc.sa.ms.control.order.payment.PaymentDetailVerificationHandler::handleRequest`.
+* As a Handler for your function enter `poc.sa.ms.handler.order.fulfillment.payment.PaymentDetailVerificationHandler::handleRequest`.
 * Use the payment role created in the previous step.
 
 ###PaymentPreAuthorisationHandler
 
-* As a Handler for your function enter `poc.sa.ms.control.order.payment.PaymentDetailPreAuthorisationHandler::handleRequest`.
+* As a Handler for your function enter `poc.sa.ms.handler.order.fulfillment.payment.PaymentDetailPreAuthorisationHandler::handleRequest`.
 * Use the payment role created in the previous step.
 
 	

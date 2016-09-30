@@ -3,7 +3,7 @@ package poc.sa.ms.model.user;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 
-import poc.sa.ms.exception.DaoException;
+import poc.sa.ms.common.model.exception.DaoException;
 
 public class DdbUserDao implements UserDao {
 	private static DdbUserDao instance = null;

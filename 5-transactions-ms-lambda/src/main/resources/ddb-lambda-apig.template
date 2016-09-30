@@ -1,0 +1,247 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+
+  "Description": "AWS CloudFormation Template for SuperMission: Builds DynamoDB tables, an S3 bucket, and Lambda functions for use in a real-time voting application. ** This template creates multiple AWS resources. You will be billed for the AWS resources used if you create a stack from this template.",
+
+
+
+  "Resources": {
+
+    "DynamoDBOrderTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "AttributeDefinitions": [{
+          "AttributeName": "orderId",
+          "AttributeType": "S"
+        }, {
+          "AttributeName": "orderPayload",
+          "AttributeType": "S"
+        }, {
+          "AttributeName": "orderStatus",
+          "AttributeType": "S"
+        }],
+        "KeySchema": [{
+          "AttributeName": "orderId",
+          "KeyType": "HASH"
+        }],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": "10",
+          "WriteCapacityUnits": "10"
+        },
+        "StreamSpecification": {
+          "StreamViewType": "NEW_AND_OLD_IMAGES"
+        },
+        "TableName": "Order"
+      }
+    },
+    "DynamoDBErrorTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "AttributeDefinitions": [{
+          "AttributeName": "errorId",
+          "AttributeType": "S"
+        }, {
+          "AttributeName": "orderPayload",
+          "AttributeType": "S"
+        }, {
+          "AttributeName": "serviceId",
+          "AttributeType": "S"
+        }, {
+          "AttributeName": "messageDetail",
+          "AttributeType": "S"
+        }],
+        "KeySchema": [{
+          "AttributeName": "errorId",
+          "KeyType": "HASH"
+        }],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": "10",
+          "WriteCapacityUnits": "10"
+        },
+        "StreamSpecification": {
+          "StreamViewType": "NEW_AND_OLD_IMAGES"
+        },
+        "TableName": "Error"
+      }
+    },
+    "DynamoDBItemStockTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "AttributeDefinitions": [{
+          "AttributeName": "sku",
+          "AttributeType": "S"
+        }, {
+          "AttributeName": "quantity",
+          "AttributeType": "N"
+        }, {
+          "AttributeName": "reOrdered",
+          "AttributeType": "B"
+        }, {
+          "AttributeName": "updateDate",
+          "AttributeType": "S"
+        }],
+        "KeySchema": [{
+          "AttributeName": "sku",
+          "KeyType": "HASH"
+        }],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": "10",
+          "WriteCapacityUnits": "10"
+        },
+        "StreamSpecification": {
+          "StreamViewType": "NEW_AND_OLD_IMAGES"
+        },
+        "TableName": "ItemStock"
+      }
+    },
+    "DynamoDBProductTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "AttributeDefinitions": [{
+          "AttributeName": "sku",
+          "AttributeType": "S"
+        }, {
+          "AttributeName": "description",
+          "AttributeType": "S"
+        }, {
+          "AttributeName": "imageName",
+          "AttributeType": "S"
+        }, {
+          "AttributeName": "price",
+          "AttributeType": "N"
+        }],
+        "KeySchema": [{
+          "AttributeName": "sku",
+          "KeyType": "HASH"
+        }],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": "10",
+          "WriteCapacityUnits": "10"
+        },
+        "StreamSpecification": {
+          "StreamViewType": "NEW_AND_OLD_IMAGES"
+        },
+        "TableName": "Product"
+      }
+    },
+    "OrderCaptureHandler": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Handler": "poc.sa.ms.handler.order.fulfillment.OrderCaptureHandler::handleRequest",
+        "Role": {
+          "Fn::GetAtt": ["DynamoDBOrderCrudRole", "Arn"]
+        },
+        "Code": {
+          "S3Bucket": "TODObucketname.",
+          "S3Key": "TODOlocation"
+        },
+        "Runtime": "TODOruntime"
+      }
+    },
+    "DynamoDbListener": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Handler": "poc.sa.ms.handler.order.fulfillment.DynamoDbListener::handleRequest",
+        "Role": {
+          "Fn::GetAtt": ["LambdaExecutionRole", "Arn"]
+        },
+        "Code": {
+          "S3Bucket": "TODO",
+          "S3Key": "TODO"
+        },
+        "Runtime": "TODO"
+      }
+    },
+    "FulfillmentHandler": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Handler": "poc.sa.ms.handler.order.fulfillment.FulfillmentHandler::handleRequest",
+        "Role": {
+          "Fn::GetAtt": ["DynamoDBItemStockCrudRole", "Arn"]
+        },
+        "Code": {
+          "S3Bucket": "TODO",
+          "S3Key": "TODO"
+        },
+        "Runtime": "TODO"
+      }
+    },
+    "DynamoDBCrudRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [{
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "lambda.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+          }]
+        }
+      }
+    },
+    "DynamoDBFullRolePolicies": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "DynamoDBPolicy",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [{
+            "Effect": "Allow",
+            "Action": [
+              "dynamodb:Query",
+              "dynamodb:Scan",
+              "dynamodb:BatchWriteItem",
+              "dynamodb:*"
+            ],
+            "Resource": ["*"]
+          }]
+        },
+        "Roles": [{
+          "Ref": "DynamoDBCrudRole"
+        }]
+      }
+    },
+    "LambdaExecutionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [{
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "lambda.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+          }]
+        }
+      }
+    },
+  "Outputs": {
+    "OrderTableName": {
+      "Value": {
+        "Ref": "DynamoDBOrderTable"
+      },
+      "Description": "Table name of the newly created DynamoDB table"
+    },
+    "ErrorTableName": {
+      "Value": {
+        "Ref": "DynamoDBOrderTable"
+      },
+      "Description": "Table name of the newly created DynamoDB table"
+    },
+    "ItemStockTableName": {
+      "Value": {
+        "Ref": "DynamoDBOrderTable"
+      },
+      "Description": "Table name of the newly created DynamoDB table"
+    },
+    "ProductTableName": {
+      "Value": {
+        "Ref": "DynamoDBOrderTable"
+      },
+      "Description": "Table name of the newly created DynamoDB table"
+    }
+  }
+}

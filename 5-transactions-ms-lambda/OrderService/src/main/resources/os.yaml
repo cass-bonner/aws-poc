@@ -1,0 +1,60 @@
+---
+swagger: "2.0"
+info:
+  version: "2016-09-18T08:02:54Z"
+  title: "WFOrderService"
+host: "9bh8p479p5.execute-api.ap-northeast-1.amazonaws.com"
+basePath: "/d"
+schemes:
+- "https"
+paths:
+  /orders:
+    get:
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+    post:
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Response"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Headers:
+              type: "string"
+definitions:
+  Response:
+    type: "object"
+    properties:
+      orderId:
+        type: "string"
+    title: "Response Schema"
+  Empty:
+    type: "object"
+    title: "Empty Schema"

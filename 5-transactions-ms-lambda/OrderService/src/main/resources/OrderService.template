@@ -1,0 +1,126 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+
+  "Description": "AWS CloudFormation Template for SuperMission: Builds DynamoDB tables, an S3 bucket, and Lambda functions for use in a real-time voting application. ** This template creates multiple AWS resources. You will be billed for the AWS resources used if you create a stack from this template.",
+
+
+
+  "Resources": {
+
+    "DynamoDBOrderTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "AttributeDefinitions": [{
+          "AttributeName": "orderId",
+          "AttributeType": "S"
+        }, {
+          "AttributeName": "orderPayload",
+          "AttributeType": "S"
+        }, {
+          "AttributeName": "orderStatus",
+          "AttributeType": "S"
+        }],
+        "KeySchema": [{
+          "AttributeName": "orderId",
+          "KeyType": "HASH"
+        }],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": "10",
+          "WriteCapacityUnits": "10"
+        },
+        "StreamSpecification": {
+          "StreamViewType": "NEW_AND_OLD_IMAGES"
+        },
+        "TableName": "Order"
+      }
+    },
+    "OrderCaptureHandler": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Handler": "poc.sa.ms.handler.order.fulfillment.OrderCaptureHandler::handleRequest",
+        "Role": {
+          "Fn::GetAtt": ["DynamoDBOrderCrudRole", "Arn"]
+        },
+        "Code": {
+          "S3Bucket": "TODObucketname.",
+          "S3Key": "TODOlocation"
+        },
+        "Runtime": "TODOruntime"
+      }
+    },
+    "DynamoDbListener": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Handler": "poc.sa.ms.handler.order.fulfillment.DynamoDbListener::handleRequest",
+        "Role": {
+          "Fn::GetAtt": ["LambdaExecutionRole", "Arn"]
+        },
+        "Code": {
+          "S3Bucket": "TODO",
+          "S3Key": "TODO"
+        },
+        "Runtime": "TODO"
+      }
+    },
+    "DynamoDBOrderCrudRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [{
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "lambda.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+          }]
+        }
+      }
+    },
+    "DynamoDBFullRolePolicies": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "DynamoDBPolicy",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [{
+            "Effect": "Allow",
+            "Action": [
+              "dynamodb:Query",
+              "dynamodb:Scan",
+              "dynamodb:BatchWriteItem",
+              "dynamodb:*"
+            ],
+            "Resource": ["TODO - insert ref to Order table."]
+          }]
+        },
+        "Roles": [{
+          "Ref": "DynamoDBCrudRole"
+        }]
+      }
+    },
+    "LambdaExecutionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [{
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "lambda.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+          }]
+        }
+      }
+    },
+  },
+  "Outputs": {
+    "OrderTableName": {
+      "Value": {
+        "Ref": "DynamoDBOrderTable"
+      },
+      "Description": "Table name of the newly created DynamoDB table"
+    },
+  }
+}

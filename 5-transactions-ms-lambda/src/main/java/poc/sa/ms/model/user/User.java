@@ -7,7 +7,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIgnore;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 
-import poc.sa.ms.daoconfig.DdbConfiguration;
+import poc.sa.ms.common.model.config.DdbConfiguration;
 
 @DynamoDBTable(tableName = DdbConfiguration.USERS_TABLE_NAME)
 public class User {

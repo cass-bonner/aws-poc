@@ -1,7 +1,7 @@
 package poc.sa.ms.model.user;
 
 
-import poc.sa.ms.exception.DaoException;
+import poc.sa.ms.common.model.exception.DaoException;
 
 public interface UserDao {
     /**
